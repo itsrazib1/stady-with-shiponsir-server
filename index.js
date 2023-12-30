@@ -47,11 +47,16 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/studentsetails", async (req, res) => {
-      const newCoffee = req.body;
-      console.log(newCoffee);
-      const result = await coffeeCollection.insertOne(newCoffee);
-      res.send(result);
+    app.post('/studentsetails', async (req, res) => {
+      const newTask = req.body;
+
+      try {
+        const result = await coffeeCollection.insertOne(newTask);
+        res.status(201).json(result);
+      } catch (err) {
+        console.error('Error creating task:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
     });
 
     app.put("/studentsetails/:id", async (req, res) => {
@@ -74,6 +79,26 @@ async function run() {
 
       const result = await coffeeCollection.updateOne(filter, coffee, options);
       res.send(result);
+    });
+    app.patch('/studentsetails/:id', async (req, res) => {
+      const taskId = req.params.id;
+      const updatedTaskData = req.body;
+
+      try {
+        const result = await coffeeCollection.updateOne(
+          { _id: new ObjectId(taskId) },
+          { $set: updatedTaskData }
+        );
+
+        if (result.matchedCount === 0) {
+          res.status(404).json({ error: 'Task not found' });
+        } else {
+          res.json({ message: 'Task updated successfully' });
+        }
+      } catch (err) {
+        console.error('Error updating task:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
     });
 
     app.delete("/studentsetails/:id", async (req, res) => {
