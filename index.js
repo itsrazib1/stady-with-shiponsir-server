@@ -47,11 +47,16 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/studentsetails", async (req, res) => {
-      const newCoffee = req.body;
-      console.log(newCoffee);
-      const result = await coffeeCollection.insertOne(newCoffee);
-      res.send(result);
+    app.post('/studentsetails', async (req, res) => {
+      const newTask = req.body;
+
+      try {
+        const result = await coffeeCollection.insertOne(newTask);
+        res.status(201).json(result);
+      } catch (err) {
+        console.error('Error creating task:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
     });
 
     app.put("/studentsetails/:id", async (req, res) => {
