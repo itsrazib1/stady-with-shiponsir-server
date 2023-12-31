@@ -130,27 +130,42 @@ async function run() {
       res.send(result);
     });
 
-    app.put("/logindata/:id", async (req, res) => {
+    app.patch('/logindata/:id', async (req, res) => {
       const id = req.params.id;
+      console.log(id);
       const filter = { _id: new ObjectId(id) };
-      const options = { upsert: true };
-      const updatedlogindata = req.body;
-
-      const coffee = {
+      const updateDoc = {
         $set: {
-          name: updatedlogindata.name,
-          quantity: updatedlogindata.quantity,
-          supplier: updatedlogindata.supplier,
-          taste: updatedlogindata.taste,
-          category: updatedlogindata.category,
-          details: updatedlogindata.details,
-          photo: updatedlogindata.photo,
+          Role: 'Captain'
         },
       };
-
-      const result = await coffeeCollection.updateOne(filter, coffee, options);
+      const result = await usersCollection.updateOne(filter, updateDoc);
       res.send(result);
+
+    })
+    
+    app.put("/logindata/:id", async (req, res) => {
+      console.log('Update request received:', req.params.id, req.body);
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedlogindata = req.body;
+    
+      const updateData = {
+        $set: {
+          Role: updatedlogindata.Role
+        },
+      };
+    
+      try {
+        const result = await logindataCollection.updateOne(filter, updateData);
+        res.json(result);
+      } catch (err) {
+        console.error('Error updating role:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
     });
+    
+    
 
     app.delete("/logindata/:id", async (req, res) => {
       const id = req.params.id;
